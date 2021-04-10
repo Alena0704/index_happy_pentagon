@@ -65,6 +65,9 @@ Papa.parse("http://example.com/bigfoo.csv", {
 ;
 */
 
+
+
+
 // Элемент для выбора файлов.
 const INPUT = document.querySelector('input[name="readable"]');
 // Элемент для вывода сгенерированной таблицы.
@@ -72,7 +75,23 @@ const PREVIEW = document.querySelector('#preview');
 // Регулярное выражение для проверки расширения файла.
 const REGEX = new RegExp('(.*?)\.(csv)$', 'i');
 
+function decode(responseArrayBuffer) {
+    const
+        dataView = new DataView(responseArrayBuffer),
+        decoder = new TextDecoder('windows-1251');
+    return decoder.decode(dataView);
+}
+
+fetch(file)
+    .then(response => response.arrayBuffer())
+    .then(decode)
+    .then(console.log)
+    .catch(err => console.log(err.message));
+
+
 // Функция, отрабатывающая при выборе файла.
+
+
 function handleFile(event) {
     // Выбираем первый файл из списка файлов.
     const file = event.target.files[0];
@@ -87,7 +106,7 @@ function handleFile(event) {
         // Чтение файла асинхронное, поэтому
         // создание таблицы привязываем к событию `load`,
         // которое срабатывает при успешном завершении операции чтения.
-        reader.onload = (e) => renderTable(e.target.result);
+        reader.onload = (e) =>renderTable(e.target.result);
         //reader.onload = (e) => MapImput(e.target.result)
         // Читаем содержимое как текстовый файл.
         reader.readAsText(file);
@@ -113,7 +132,7 @@ function renderTable(data) {
     let tbody = document.createElement('tbody');
 
     // Добавим класс к таблице.
-    table.classList.add('table');
+    table.classList.add('table_users');
 
     // Разбиваем входящие данные построчно.
     // Разделитель - перенос строки.
@@ -122,17 +141,18 @@ function renderTable(data) {
         .forEach(function (row, index) {
             // Создадим элемент строки для таблицы.
             let trow = document.createElement('tr');
-
+            trow.classList.add('tr_users')
             // Разбиваем каждую строку на ячейку.
             // Разделитель - точка с запятой.
             // Перебираем полученный массив будущих ячеек.
-            row.split(/;/).forEach(function (cell) {
+            row.split(/,/).forEach(function (cell) {
                 // Создадим элемент ячейки для таблицы.
-                let tcell = document.createElement(index > 0 ? 'td' : 'th');
+                let td = document.createElement( index > 0 ? 'td':'th');
+                td.classList.add('td_users')
                 // Заполним содержимое ячейки.
-                tcell.textContent = cell;
+                td.textContent = cell;
                 // Добавляем ячейку к родительской строке.
-                trow.appendChild(tcell);
+                trow.appendChild(td);
             });
 
             // Добавляем строку к родительскому элементу.
