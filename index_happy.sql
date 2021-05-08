@@ -9,7 +9,6 @@ CREATE TABLE `fuel` (
   `year` int NOT NULL,
   `value_92` tinytext,
   `value_95` tinytext,
-  `value_98` tinytext,
   KEY `id_regions_idx` (`id_regions`),
   KEY `year_idx` (`year`)
 ) 
@@ -44,14 +43,18 @@ CREATE TABLE `traffic_axident` (
   `id_regions` int NOT NULL,
   `year` int NOT NULL,
   `value_100000` tinytext,
-  `value_dead` tinytext,
-  `value_sick` tinytext
+  `value_dead` tinytext
 ) 
 CREATE TABLE `unemployment_rate` (
   `id_regions` int NOT NULL,
   `year` int NOT NULL,
   `value` tinytext
 ) 
+create table `index_work`(
+`id_regions` int NOT NULL,
+year int NOT NULL,
+value tinytext);
+create table `social_budget`( `id_regions` int NOT NULL, year int NOT NULL, value tinytext);
 CREATE TABLE `year` (
   `year` int NOT NULL,
   PRIMARY KEY (`year`)
