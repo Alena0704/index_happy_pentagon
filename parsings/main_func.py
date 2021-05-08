@@ -25,21 +25,21 @@ def parsing(feature):
 	    url_places = driver.find_elements_by_css_selector(".table--2HjiB > tbody >tr")
 	    #print(url_places)
 	    for region in url_places:
-		region_number = region.find_element_by_css_selector("td:nth-child(1)").text
-		region_name = region.find_element_by_css_selector("td:nth-child(2)").text
-		profit_minus_population = region.find_element_by_css_selector("td:nth-child(3)").text
-		hislenost_1_jan = region.find_element_by_css_selector("td:nth-child(4)").text
-		etstven_prirost_ubyl_2016_2018 = region.find_element_by_css_selector("td:nth-child(5)").text
-		region = {
+	    	region_number = region.find_element_by_css_selector("td:nth-child(1)").text
+	    	region_name = region.find_element_by_css_selector("td:nth-child(2)").text
+	    	profit_minus_population = region.find_element_by_css_selector("td:nth-child(3)").text
+	    	hislenost_1_jan = region.find_element_by_css_selector("td:nth-child(4)").text
+	    	etstven_prirost_ubyl_2016_2018 = region.find_element_by_css_selector("td:nth-child(5)").text
+	    	region = {
 		    'region_number':region_number,
 		    'region_name':region_name,
 		    'profit_minus_population':profit_minus_population,
 		    'hislenost_1_jan':hislenost_1_jan,
 		    'etstven_prirost_ubyl_2016_2018':etstven_prirost_ubyl_2016_2018
 		}
-		population_lst.append(region)
-		yield ({'type':'population','datas': region})
 		#json.dump(region,file_json, ensure_ascii=False, sort_keys=True)
+		yield ({'type':'population','datas': region })
+
 	    #file_json.close()
 	    print('population done')
 	    
