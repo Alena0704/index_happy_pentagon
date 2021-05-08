@@ -38,10 +38,11 @@ def parsing(feature):
 		    'etstven_prirost_ubyl_2016_2018':etstven_prirost_ubyl_2016_2018
 		}
 		population_lst.append(region)
+		yield ({'type':'population','datas': region})
 		#json.dump(region,file_json, ensure_ascii=False, sort_keys=True)
 	    #file_json.close()
 	    print('population done')
-	    yield population_lst
+	    
     if feature == 'salary':
 	    url = url_salary
 	    driver.get(url)
@@ -66,11 +67,12 @@ def parsing(feature):
 		    'ratio_sm_me':ratio_sm_me
 		}
 		salary_lst.append(region)
+		yield ({'type':'salary','datas':region})
 		#json.dump(region,file_json, ensure_ascii=False, sort_keys=True)
 		#print(region_number)
 	    #file_json.close()
 	    print('salary done')
-	    yield salary_lst
+	    
     if feature == 'oil':
     	url = url_oil
 	driver.get(url)
@@ -92,8 +94,8 @@ def parsing(feature):
 			'region_change':region_change
 			}
 		oil_lst.append(region)
+		yield ({'type':'oil','datas': region})
 	print('oil done')
-	yield oil_lst
 	
     if feature == 'dtp':
 	    url = url_dtp
@@ -113,17 +115,17 @@ def parsing(feature):
 		region = {
 		    'region_number':region_number,
 		    'region_name':region_name,
-		    'region_volume':kolvo_avaria_100k_auto,
-		    'region_cost':izmen_dtp_2018,
-		    'region_change':chislo_postradavshih_100k_2019,
-		    'region_change':chislo_pogib_100k_postradavsh
+		    'kolvo_avaria_100k_auto':kolvo_avaria_100k_auto,
+		    'izmen_dtp_2018':izmen_dtp_2018,
+		    'chislo_postradavshih_100k_2019':chislo_postradavshih_100k_2019,
+		    'chislo_pogib_100k_postradavsh':chislo_pogib_100k_postradavsh
 		}
 		#json.dump(region,file_json, ensure_ascii=False, sort_keys=True)
 		#print(region_number)
 		dtp_lst.append(region)
+		yield ({'type':'dtp', 'datas': region})
 	    #file_json.close()
 	    print('dtp done')
-	    yield dtp_lst
 
     if feature == 'unempl':
 	    url = url_unempl
@@ -150,9 +152,9 @@ def parsing(feature):
 		unempl_lst.append(region)
 		#json.dump(region,file_json, ensure_ascii=False, sort_keys=True)
 		#print(region_number)
+		yield ({'type':'unempl', 'datas': region})
 	    #file_json.close()
 	    print('unemployment done')
-	    yield unempl_lst
     
     if feature == 'index_happy':
 	    url = url_index_happy
@@ -174,9 +176,9 @@ def parsing(feature):
 		    'region_mesto_2019':region_mesto_2019
 		}
 		lst_ind.append(region)
+		yield ({'type':'index_happy','datas': region})
 		#print(region_number)
 	    print('index_happy done')
-	    yield lst_ind
 
     if feature == 'work':
 	    url = url_work
@@ -198,9 +200,9 @@ def parsing(feature):
 		    'region_index_2019':region_index_2019
 		}
 		lst_ind.append(region)
+		yield ({'type':'work', 'datas': region})
 		#print(region_number)
 	    print('work done')
-	    yield lst_ind
     if feature == 'budget':
             url = url_budget
 	    driver.get(url)
@@ -223,33 +225,44 @@ def parsing(feature):
 		    'region_dolya_2019':region_dolya_2019
 		}
 		lst_ind.append(region)
+		yield ({'type': 'budget', 'datas': region})
 	    print('society done')
-	    yield lst_ind
+import mysql.connector
+mydb = mysql.connector.connect(host = "hosthere.tech", user = "root", password = "password", database = "index_happy")
+mycursor = mydb.cursor()
 
-def Filter(feature):
-    datas = []
-    if feature == 'population':
-    	datas = parsing_population(url_popuation)
-    elif feature == 'salary':
-    	datas = parsing_salary(url_salary)
-    elif feature == 'oil':
-    	datas = parsing_oil(url_oil)
-    elif feature == 'dtp':
-    	datas = parsing_dtp(url_dtp)
-    elif feature == 'unempl':
-    	datas = parsing_oil(url_unempl)
-    elif feature == 'index_happy':
-    	datas = parsing_ind_hap(url_index_happy)
-    elif feature == 'work':
-    	datas = parsing_ind_work(url_work)
-    elif feature == 'budget':
-    	datas = parsing_ind_soc(url_budget)
+def go_to_bd(feature):
+    res = mycursor.execute("select id_regions from regions where name = {}".format(feature['datas']['region_name']))
+    id_ = res[0]
+    if feature['type'] == 'population':
+    	str_ = "insert into population (id_regions, year, value) values (%s, %s, %s)"
+    	mycursor.execute(str_, (id_, '2021', feature['datas']['hislenost_1_jan']))
+    elif feature['type'] == 'salary':
+    	str_ = "insert into mean_salary (id_regions, year, value) values (%s, %s, %s)"
+    	mycursor.execute(str_, (id_, '2021', feature['datas']['mean_salary']))
+    elif feature['type'] == 'oil':
+    	str_ = "insert into fuel (id_regions, year, value_92) values (%s, %s, %s)"
+    	mycursor.execute(str_, (id_, '2021', feature['datas']['region_cost']))
+    elif feature['type'] == 'dtp':
+    	str_ = "insert into traffic_axident (id_regions, year, value_100000,value_dead ) values (%s, %s, %s, %s)"
+    	mycursor.execute(str_, (id_, '2021', feature['datas']['kolvo_avaria_100k_auto'], feature['datas'['chislo_pogib_100k_postradavsh']))
+    elif feature['type'] == 'unempl':
+    	str_ = "insert into unemployment_rate (id_regions, year, value) values (%s, %s, %s)"
+    	mycursor.execute(str_, (id_, '2021', feature['datas']['level_unemployment']))
+    elif feature['type'] == 'index_happy':
+    	str_ = "insert into index_happy (id_regions, year, value) values (%s, %s, %s)"
+    	mycursor.execute(str_, (id_, '2021', feature['datas']['region_reiting_ball']))
+    elif feature['type'] == 'work':
+    	str_ = "insert into index_work (id_regions, year, value) values (%s, %s, %s)"
+    	mycursor.execute(str_, (id_, '2021', feature['datas']['region_index']))
+    elif feature['type'] == 'budget':
+    	str_ = "insert into social_budget (id_regions, year, value) values (%s, %s, %s)"
+    	mycursor.execute(str_, (id_, '2021', feature['datas']['region_rash']))
     	
 def run_beam(lst):
     for i in lst:
     	with beam.Pipeine() as p:
     	    (p | beam.Map(parsing)
-    	       | beam.Map(Filter)
     	       | beam.ParDo(go_to_bd)
 
 lst = ['population', 'salary', 'oil','dtp', 'unemploment', 'index_happy', 'index_work', 'society']
