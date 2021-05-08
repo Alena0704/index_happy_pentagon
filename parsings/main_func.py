@@ -226,7 +226,7 @@ def parsing(feature):
 	    print('society done')
 	    yield lst_ind
 
-def go_to_bd(feature):
+def Filter(feature):
     datas = []
     if feature == 'population':
     	datas = parsing_population(url_popuation)
@@ -248,7 +248,8 @@ def go_to_bd(feature):
 def run_beam(lst):
     for i in lst:
     	with beam.Pipeine() as p:
-    	    (p | beam.Map(parsing, feature = i)
+    	    (p | beam.Map(parsing)
+    	       | beam.Map(Filter)
     	       | beam.ParDo(go_to_bd)
 
 lst = ['population', 'salary', 'oil','dtp', 'unemploment', 'index_happy', 'index_work', 'society']
